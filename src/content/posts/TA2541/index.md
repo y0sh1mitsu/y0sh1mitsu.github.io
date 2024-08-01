@@ -1,7 +1,7 @@
 ---
 title: Respond to a TA2541 intrusion
 published: 2023-09-09
-description: Reimplementation and forensics analysis on a TA2541 intrusion
+description: Re-implementation and digital forensic analysis of a TA2541 intrusion
 image: ./illustration.jpg
 tags: [DFIR]
 category: Respond to a ... intrusion
