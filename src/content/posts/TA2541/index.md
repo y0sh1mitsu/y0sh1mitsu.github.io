@@ -1,7 +1,7 @@
 ---
 title: Respond to a TA2541 intrusion
 published: 2023-09-09
-description: Re-implementation and digital forensic analysis of a TA2541 intrusion
+description: Reproduce and Respond to a TA2541 intrusion case with the help of Velociraptor.
 image: ./illustration.jpg
 tags: [DFIR]
 category: Respond to a ... intrusion
