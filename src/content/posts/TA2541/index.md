@@ -144,6 +144,7 @@ To be able to read them, I had to read the Decompress function, which decompress
 
 ![](./Cyberchef.png)
 *Figure 10 - Cyberchef Recipe*
+
 All that remains is to analyze the user's web history to find out when he downloaded the script from Google Drive, and why not make sure there are no other persistent files on the system.
 
 ### Web History
