@@ -1,4 +1,4 @@
 # About
-Currently I'm a DFIR consultant at CSIRT Airbus Protect. This blog is mainly about DFIR (stories, research and methodologies).
+I'm a consultant specializing in DFIR (Digital Forensics and Incident Response). On this blog, I share real-life stories, research and methodologies related to digital forensics and security incident management. I'm passionate about this field, and share my discoveries and feedback in the hope of contributing to the community and fostering constructive exchanges.
 
-Do not hesitate to contact me for offers or to exchange on these subjects on my various social networks.
+Feel free to contact me on my various social networks if you'd like to collaborate, submit a project or simply discuss topics related to cybersecurity and DFIR.
