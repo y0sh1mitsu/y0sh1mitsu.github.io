@@ -8,10 +8,6 @@ category: Respond to a ... intrusion
 draft: false
 ---
 
-# Preface of the "Respond to a ... intrusion" article series 
-
-In my spare time as an incident responder, I enjoy reading and reimplementing the infection chains of various threat actors (Crimeware, APT), to improve my DFIR analysis skills. That's why I'd like to share my research with you in the form of blog posts.
-
 # Introduction
 
 Last month, I discovered a report on a threat group known as TA2541. In this report by [Proofpoint](https://www.proofpoint.com/us/blog/threat-insight/charting-ta2541s-flight), researchers have detailed the capabilities of this threat actor, highlighting its tactics and potential motivations.
