@@ -19,7 +19,7 @@ One important mindset during incident qualification is to avoid accepting initia
 ![](./house-doctor.gif)
 
 
-# Aquire Context 
+# Acquire Context 
 
 The first step usually involves gathering contextual information. Begin by asking for the date and time when the first suspicion appeared.
 
