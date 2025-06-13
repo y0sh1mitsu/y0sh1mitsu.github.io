@@ -1,10 +1,10 @@
 ---
-title: "From Alert to Insight: The Art of Incident Qualification"
+title: "From Alert to Insight: The Art of Incident Classification"
 published: 2025-05-26
-description: 'A short guide for those wishing to qualify an incident'
+description: 'A short guide for those wishing to classify an incident'
 image: './illustration.jpg'
 tags: [DFIR]
-category: ''
+category: 'Guide'
 draft: false 
 ---
 
