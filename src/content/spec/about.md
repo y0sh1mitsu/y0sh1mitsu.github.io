@@ -1,3 +1,9 @@
 # About
 
-DFIR Consultant with 5+ years of cybersecurity experience, I specialize in global incident response, ransomware investigations and network intrusion analysis. Proficient in threat detection and digital forensics, leveraging tools like Splunk, Velociraptor (Live Forensics), and leading EDR solutions to quickly assess, contain, and remediate cyber incidents. Known for coordinating cross-functional teams and delivering timely, effective responses in high-pressure environments.
+Digital forensics and incident response specialist with 5+ years of experience handling complex security incidents across global environments. I operate at the intersection of speed and forensic depth, driving containment and recovery efforts under pressure.
+
+Skilled in dissecting endpoint, memory, and network artifacts across hybrid infrastructures. Deep understanding of attacker TTPs, lateral movement patterns, and post-compromise behaviors. Strong focus on evidentiary integrity and chain of custody during high-stakes investigations.
+
+Experienced in leading technical response across cross-functional teams, aligning forensic workflows with operational priorities.
+
+Driven by the complexity of identity-driven attacks and the evolving challenges of hybrid environments.
