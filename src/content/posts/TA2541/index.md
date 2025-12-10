@@ -4,7 +4,7 @@ published: 2023-09-09
 description: Reproduce and Respond to a TA2541 intrusion case with the help of Velociraptor.
 image: ./illustration.jpg
 tags: [DFIR]
-category: Respond to a ... intrusion
+category: Respond to an intrusion
 draft: false
 ---
 
