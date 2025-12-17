@@ -17,7 +17,7 @@ In the world of DFIR, the **Prefetch file (.pf)** is a long-time companion. Itâ€
 
 I applied this rule without ever questioning it. I knew it worked, but I didnâ€™t truly understand the reasoning behind it. **Why 10 seconds? Why not instantly? What is the operating system actually doing during that delay? And where did this technology originally come from?**
 
-This article documents that little research.
+This article documents this small research project.
 
 # The Genesis: Solving the "Seek" Penalty
 
