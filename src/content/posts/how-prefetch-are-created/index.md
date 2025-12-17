@@ -1,5 +1,5 @@
 ---
-title: How Prefetch are created?
+title: How are Prefetch created?
 published: 2025-12-17
 description: 'A little research about the Windows Prefetcher mecanism'
 image: './Toji_Fushiguro_EP25.webp'
@@ -23,7 +23,7 @@ This article documents that little research.
 
 The Prefetch mechanism is a fundamental innovation within Microsoft Windows operating systems, first officially introduced with **Windows XP**. Its technical origin is rooted in the patent [US 6,633,968 B2, filed by Arthur Zwiegincew and James E. Walsh of Microsoft in 2003](https://patentimages.storage.googleapis.com/fe/e5/6d/f69b888fbc57a1/US6633968.pdf).
 
-The initial challenge was simple yet crucial for perceived user performance: **how to reduce the latency time during the startup of applications and the operating system?** This slowness stemmed from hard page faults, where the system had to interrupt its work and wait for the necessary data blocks (pages) to be transferred, slowly, from the hard drive to RAM. The patented solution involves detecting and analyzing "**Scenarios**" of disk access (such as launching a program) to create Scenario files. 
+The initial challenge was simple yet crucial for perceived user performance: **how to reduce the latency time during the startup of applications and the operating system?** This slowness stemmed from hard page faults, where the system had to interrupt its work and wait for the necessary data blocks (pages) to be transferred, slowly, from the hard drive to RAM. The patented solution involves detecting and analyzing "**Scenarios**" of disk access (such as launching a program) to create Scenario files (.pf files). 
 
 These files contain the ordered list of pages that will be requested. Thanks to this prefetching mechanism, the system proactively loads these pages into RAM before they are requested, thereby converting long disk access delays into fast soft page faults, ensuring significantly better system responsiveness.
 
@@ -50,7 +50,7 @@ To understand the lifecycle of a Prefetch file, we must look beyond the disk. Wi
 Windows Internals explains that the ```svchost.exe``` instance responsible for the **SysMain** service will wait for a notification from the kernel, ```\KernelObjects\PrefetchTracesReady```, to inform it that it can now request the data.
 
 
-To observe this, I identified the responsible ```svchost``` instance and attached myself with WinDbg:
+To observe this, I identified the responsible ```svchost``` instance and attached myself with WinDbg. By inspecting the status of the pending thread registry, we can see [NtWaitForMultipleObjects](https://ntdoc.m417z.com/ntwaitformultipleobjects), which allows waiting until one or all of the specified objects are in the reported state:
 
 ```
 0:001> k
@@ -66,7 +66,7 @@ To observe this, I identified the responsible ```svchost``` instance and attache
 08 000000e1`bcf7fc90 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
 ```
 
-By inspecting the register state of the waiting thread, it was possible to identify the array of kernel objects involved in the wait operation. Resolving these descriptors indeed revealed the presence of the kernel event named ```\KernelObjects\PrefetchTracesReady```.
+By inspecting the register state of the waiting thread, it was possible to identify the array of kernel objects involved in the wait operation. Resolving these handles indeed revealed the presence of the kernel event named ```\KernelObjects\PrefetchTracesReady```.
 ```
 0:001> r
 rax=000000000000005b rbx=0000000000000007 rcx=0000000000000007
