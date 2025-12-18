@@ -50,7 +50,7 @@ To understand the lifecycle of a Prefetch file, we must look beyond the disk. Wi
 Windows Internals explains that the ```svchost.exe``` instance responsible for the **SysMain** service will wait for a notification from the kernel, ```\KernelObjects\PrefetchTracesReady```, to inform it that it can now request the data.
 
 
-To observe this, I identified the responsible ```svchost``` instance and attached myself with WinDbg. By inspecting the status of the pending thread registry, we can see [NtWaitForMultipleObjects](https://ntdoc.m417z.com/ntwaitformultipleobjects), which allows waiting until one or all of the specified objects are in the reported state:
+​To observe this, I attached **WinDbg** to the relevant ```svchost``` instance. The stack trace reveals a call to ```ntdll!NtWaitForMultipleObjects``` (https://ntdoc.m417z.com/ntwaitformultipleobjects), indicating the thread is suspended until specific objects enter a signaled state:
 
 ```
 0:001> k
@@ -66,7 +66,8 @@ To observe this, I identified the responsible ```svchost``` instance and attache
 08 000000e1`bcf7fc90 00000000`00000000     ntdll!RtlUserThreadStart+0x2c
 ```
 
-By inspecting the register state of the waiting thread, it was possible to identify the array of kernel objects involved in the wait operation. Resolving these handles indeed revealed the presence of the kernel event named ```\KernelObjects\PrefetchTracesReady```.
+​By inspecting the thread's registers and resolving the handles in the wait array, I confirmed the presence of the kernel event ```\KernelObjects\PrefetchTracesReady```:
+
 ```
 0:001> r
 rax=000000000000005b rbx=0000000000000007 rcx=0000000000000007
