@@ -110,11 +110,11 @@ Here, consider this event as the starter's pistol. Once the kernel's 10-second t
 Then, once the SysMain service knows that the data is available, we can read again in Windows Internals that it makes a call to the internal syscall [NtQuerySystemInformation](https://ntdoc.m417z.com/ntquerysysteminformation) for requesting the trace data.
 
 
-To observe the precise moment when trace data is exchanged, I established a kernel debugging session using [VirtualKD-Redux](https://github.com/4d61726b/VirtualKD-Redux) and a Windows 11 VM on WMware Workstation Pro.
+To observe the precise moment when trace data is exchanged, I established a kernel debugging session using [VirtualKD-Redux](https://github.com/4d61726b/VirtualKD-Redux) and a Windows 11 VM on VMware Workstation Pro.
 
-At the same time, thanks to my friend Adams, I stumbled upon [Geoff Chappell's website](https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/pf/prefetch/superfetch.htm), which is a gold mine of information on undocumented structures. I discovered that there was one for the Prefetch mechanism (**SUPERFETCH_INFORMATION**) which helped me a lot. To filter the noise, I focused on the first argument of ```NtQuerySystemInformation```, which defines the information class requested. On x64 systems, this first parameter is passed via the ```RCX``` register. By checking for the value ```0x38``` (**SystemSuperfetchInformation**), 
+At the same time, thanks to my friend Adams, I stumbled upon [Geoff Chappell's website](https://www.geoffchappell.com/studies/windows/km/ntoskrnl/api/pf/prefetch/superfetch.htm), which is a gold mine of information on undocumented structures. I discovered that there was one for the Prefetch mechanism (**SUPERFETCH_INFORMATION**) which helped me a lot. To filter the noise, I focused on the first argument of ```NtQuerySystemInformation```, which defines the information class requested. On x64 systems, this first parameter is passed via the ```RCX``` register so we need to check for the value ```0x38``` (**SystemSuperfetchInformation**). 
 
-So after identifying the ```EPROCESS``` address for the right ```svchost.exe``` instance, I switched the debugger context and set a conditional breakpoint:
+After identifying the ```EPROCESS``` address for the right ```svchost.exe``` instance, I switched the debugger context and set a conditional breakpoint:
 
 ```
 kd> .process /i /p <EPROCESS>
