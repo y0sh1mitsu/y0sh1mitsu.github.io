@@ -2,9 +2,7 @@
 
 Hey,
 
-Freelance DFIR Consultant with 5+ years of experience responding to real-world intrusions across the world.
-
-Previously at Airbus Protect, leading IR investigations on hosts, networks, storage, and cloud environments (AWS, Azure, GCP) for clients in Media, Government, European Institutions, Defense...
+Senior DFIR Consultant with 5+ years of experience responding to real-world intrusions across the world, leading IR investigations on hosts, networks, storage, and cloud environments (AWS, Azure, GCP) for clients in Media, Government, European Institutions, Defense...
 
 🏅 GIAC Cloud Forensics Responder (GCFR) — 2024
 
