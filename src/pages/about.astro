@@ -1,27 +1,38 @@
 ---
+import { getEntry, render } from "astro:content";
+import Socials from "../components/Socials.astro";
+import { site } from "../config";
+import Base from "../layouts/Base.astro";
 
-import MainGridLayout from "../layouts/MainGridLayout.astro";
-
-import { getEntry } from "astro:content";
-import { render } from "astro:content";
-import Markdown from "@components/misc/Markdown.astro";
-import I18nKey from "../i18n/i18nKey";
-import { i18n } from "../i18n/translation";
-
-const aboutPost = await getEntry("spec", "about");
-
-if (!aboutPost) {
-	throw new Error("About page content not found");
-}
-
-const { Content } = await render(aboutPost);
+const about = await getEntry("spec", "about");
+if (!about) throw new Error("src/content/spec/about.md is missing");
+const { Content } = await render(about);
 ---
-<MainGridLayout title={i18n(I18nKey.about)} description={i18n(I18nKey.about)}>
-    <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative min-h-32">
-        <div class="card-base z-10 px-9 py-6 relative w-full ">
-            <Markdown class="mt-2">
-                <Content />
-            </Markdown>
-        </div>
-    </div>
-</MainGridLayout>
+
+<Base title="About" description={`About ${site.author}, ${site.role}.`}>
+	<div class="wrap narrow">
+		<header class="page-head">
+			<p class="eyebrow">{site.role}</p>
+		</header>
+		<div class="prose about">
+			<Content />
+		</div>
+		<div style="margin-top: 2rem">
+			<Socials labels />
+		</div>
+	</div>
+</Base>
+
+<style is:global>
+	.prose.about h1 {
+		margin-top: 0;
+		padding: 0;
+		border: 0;
+		font-size: clamp(1.875rem, 5.5vw, 2.75rem);
+		font-weight: 700;
+		letter-spacing: -0.025em;
+	}
+	.page-head:has(+ .about) {
+		padding-bottom: 0.5rem;
+	}
+</style>

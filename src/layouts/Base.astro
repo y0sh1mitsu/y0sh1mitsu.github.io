@@ -1,0 +1,172 @@
+---
+import "@fontsource/ibm-plex-sans/400.css";
+import "@fontsource/ibm-plex-sans/400-italic.css";
+import "@fontsource/ibm-plex-sans/500.css";
+import "@fontsource/ibm-plex-sans/600.css";
+import "@fontsource/ibm-plex-sans/700.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "@fontsource/ibm-plex-mono/600.css";
+import "../styles/global.css";
+import Icon from "../components/Icon.astro";
+import Socials from "../components/Socials.astro";
+import { nav, site } from "../config";
+
+interface Props {
+	title?: string;
+	description?: string;
+	/** Absolute or root-relative URL of the social preview image. */
+	image?: string;
+	article?: boolean;
+	lang?: string;
+	noindex?: boolean;
+}
+
+const {
+	title,
+	description = site.description,
+	image,
+	article = false,
+	lang = site.lang,
+	noindex = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title} - ${site.title}` : site.title;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = image ? new URL(image, Astro.site) : undefined;
+const path = Astro.url.pathname;
+const isCurrent = (href: string) =>
+	href === "/"
+		? path === "/" || path.startsWith("/posts/")
+		: path.startsWith(href);
+---
+
+<!doctype html>
+<html lang={lang.replace("_", "-") || "en"}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{pageTitle}</title>
+		<meta name="description" content={description} />
+		<meta name="author" content={site.author} />
+		{noindex && <meta name="robots" content="noindex" />}
+		<link rel="canonical" href={canonical} />
+
+		<meta property="og:site_name" content={site.title} />
+		<meta property="og:title" content={title ?? site.title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:type" content={article ? "article" : "website"} />
+		{ogImage && <meta property="og:image" content={ogImage} />}
+		<meta
+			name="twitter:card"
+			content={ogImage ? "summary_large_image" : "summary"}
+		/>
+		<meta name="twitter:title" content={title ?? site.title} />
+		<meta name="twitter:description" content={description} />
+		{ogImage && <meta name="twitter:image" content={ogImage} />}
+
+		<meta name="theme-color" content="#f8f7f3" />
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<link rel="icon" href="/favicon/favicon-light-32.png" sizes="32x32" />
+		<link rel="apple-touch-icon" href="/favicon/favicon-light-180.png" />
+		<link
+			rel="alternate"
+			type="application/rss+xml"
+			title={site.title}
+			href="/rss.xml"
+		/>
+		<link rel="sitemap" href="/sitemap-index.xml" />
+
+		<!-- Apply the saved theme before first paint to avoid a flash. -->
+		<script is:inline>
+			(() => {
+				let saved = null;
+				try {
+					saved = localStorage.getItem("theme");
+				} catch {}
+				if (saved === "light" || saved === "dark") {
+					document.documentElement.dataset.theme = saved;
+				}
+				const dark =
+					saved === "dark" ||
+					(saved !== "light" &&
+						matchMedia("(prefers-color-scheme: dark)").matches);
+				document
+					.querySelector('meta[name="theme-color"]')
+					.setAttribute("content", dark ? "#0f1216" : "#f8f7f3");
+			})();
+		</script>
+		<slot name="head" />
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
+
+		<header class="site-header">
+			<div class="wrap">
+				<a class="brand" href="/" aria-label={`${site.brand} - home`}>
+					{site.brand}
+				</a>
+				<nav class="site-nav" aria-label="Main">
+					{
+						nav.map((item) => (
+							<a
+								href={item.href}
+								aria-current={isCurrent(item.href) ? "page" : undefined}
+							>
+								{item.name}
+							</a>
+						))
+					}
+					<button
+						class="icon-btn theme-toggle"
+						type="button"
+						id="theme-toggle"
+						aria-label="Switch between light and dark theme"
+						title="Switch theme"
+					>
+						<Icon name="moon" class="icon-moon" />
+						<Icon name="sun" class="icon-sun" />
+					</button>
+				</nav>
+			</div>
+		</header>
+
+		<main id="main">
+			<slot />
+		</main>
+
+		<footer class="site-footer">
+			<div class="wrap">
+				<p>
+					&copy; {new Date().getFullYear()}
+					{site.author} &middot; <a href="#main">Back to top</a>
+				</p>
+				<Socials />
+			</div>
+		</footer>
+
+		<script>
+			const root = document.documentElement;
+			const media = matchMedia("(prefers-color-scheme: dark)");
+			const isDark = () =>
+				root.dataset.theme
+					? root.dataset.theme === "dark"
+					: media.matches;
+			const syncMeta = () =>
+				document
+					.querySelector('meta[name="theme-color"]')
+					?.setAttribute("content", isDark() ? "#0f1216" : "#f8f7f3");
+
+			document.getElementById("theme-toggle")?.addEventListener("click", () => {
+				const next = isDark() ? "light" : "dark";
+				root.dataset.theme = next;
+				try {
+					localStorage.setItem("theme", next);
+				} catch {}
+				syncMeta();
+			});
+			media.addEventListener("change", syncMeta);
+		</script>
+	</body>
+</html>
