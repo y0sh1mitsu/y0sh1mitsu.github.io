@@ -1,0 +1,250 @@
+---
+import { Image, getImage } from "astro:assets";
+import { render } from "astro:content";
+import PostMeta from "../../components/PostMeta.astro";
+import Tags from "../../components/Tags.astro";
+import { site } from "../../config";
+import Base from "../../layouts/Base.astro";
+import { type Post, getPosts, isoDate, postUrl } from "../../lib/posts";
+
+export async function getStaticPaths() {
+	const posts = await getPosts();
+	return posts.map((post, i) => ({
+		params: { slug: post.id },
+		props: { post, newer: posts[i - 1], older: posts[i + 1] },
+	}));
+}
+
+interface Props {
+	post: Post;
+	newer?: Post;
+	older?: Post;
+}
+
+const { post, newer, older } = Astro.props;
+const { title, description, image, tags, published, updated, lang } = post.data;
+const { Content, headings } = await render(post);
+
+// Table of contents: top three heading levels present in the post.
+const minDepth = Math.min(...headings.map((h) => h.depth));
+const toc = headings
+	.filter((h) => h.depth < minDepth + 3)
+	.map((h) => ({ ...h, level: h.depth - minDepth }));
+
+const og = image
+	? await getImage({ src: image, width: 1200, height: 630, format: "jpg" })
+	: undefined;
+
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "BlogPosting",
+	headline: title,
+	description: description || title,
+	keywords: tags,
+	author: { "@type": "Person", name: site.author, url: Astro.site },
+	datePublished: isoDate(published),
+	...(updated ? { dateModified: isoDate(updated) } : {}),
+	...(og ? { image: new URL(og.src, Astro.site).href } : {}),
+	inLanguage: (lang || site.lang).replace("_", "-"),
+};
+---
+
+<Base
+	title={title}
+	description={description || undefined}
+	image={og?.src}
+	lang={lang || undefined}
+	article
+>
+	<script
+		is:inline
+		slot="head"
+		type="application/ld+json"
+		set:html={JSON.stringify(jsonLd)}
+	/>
+
+	<article class="wrap">
+		<div class="post-top">
+			<header class="post-head">
+				<a class="back" href="/">&larr; All posts</a>
+				<PostMeta post={post} />
+				<h1>{title}</h1>
+				{description && <p class="lede">{description}</p>}
+				<Tags tags={tags} />
+			</header>
+
+			{
+				image && (
+					<figure class="cover">
+						<Image
+							src={image}
+							alt=""
+							widths={[480, 800, 1200, 1600]}
+							sizes="(max-width: 70rem) 100vw, 66rem"
+							loading="eager"
+							fetchpriority="high"
+						/>
+					</figure>
+				)
+			}
+		</div>
+
+		<div class="post-layout">
+			<div>
+				{
+					toc.length > 1 && (
+						<details class="toc-inline">
+							<summary>On this page</summary>
+							<nav class="toc" aria-label="Table of contents">
+								<ol>
+									{toc.map((h) => (
+										<li class={`d${h.level}`}>
+											<a href={`#${h.slug}`}>{h.text}</a>
+										</li>
+									))}
+								</ol>
+							</nav>
+						</details>
+					)
+				}
+
+				<div class="prose" id="post-content">
+					<Content />
+				</div>
+
+				<nav class="post-nav" aria-label="More posts">
+					{
+						older && (
+							<a class="prev" href={postUrl(older)}>
+								<span class="dir">&larr; Older</span>
+								{older.data.title}
+							</a>
+						)
+					}
+					{
+						newer && (
+							<a class="next" href={postUrl(newer)}>
+								<span class="dir">Newer &rarr;</span>
+								{newer.data.title}
+							</a>
+						)
+					}
+				</nav>
+			</div>
+
+			{
+				toc.length > 1 && (
+					<aside class="toc-side">
+						<p class="toc-title">On this page</p>
+						<nav class="toc" aria-label="Table of contents">
+							<ol>
+								{toc.map((h) => (
+									<li class={`d${h.level}`}>
+										<a href={`#${h.slug}`}>{h.text}</a>
+									</li>
+								))}
+							</ol>
+						</nav>
+					</aside>
+				)
+			}
+		</div>
+	</article>
+
+	<dialog class="lightbox" id="lightbox" aria-label="Enlarged image">
+		<button type="button" aria-label="Close">&times;</button>
+		<img alt="" />
+	</dialog>
+</Base>
+
+<script>
+	const content = document.getElementById("post-content");
+
+	if (content) {
+		// Heading permalinks
+		for (const h of content.querySelectorAll<HTMLElement>(
+			"h2[id], h3[id], h4[id]",
+		)) {
+			const a = document.createElement("a");
+			a.className = "anchor";
+			a.href = `#${h.id}`;
+			a.textContent = "#";
+			a.setAttribute("aria-label", `Link to section: ${h.textContent}`);
+			h.append(a);
+		}
+
+		// Copy buttons on code blocks
+		for (const pre of content.querySelectorAll("pre")) {
+			const box = document.createElement("div");
+			box.className = "code-block";
+			pre.replaceWith(box);
+			box.append(pre);
+			if (!navigator.clipboard) continue;
+			const btn = document.createElement("button");
+			btn.type = "button";
+			btn.className = "copy-btn";
+			btn.textContent = "Copy";
+			btn.addEventListener("click", async () => {
+				await navigator.clipboard.writeText(pre.innerText);
+				btn.textContent = "Copied";
+				setTimeout(() => {
+					btn.textContent = "Copy";
+				}, 1500);
+			});
+			box.append(btn);
+		}
+
+		// Click an image to view it full screen (handy for screenshots)
+		const lightbox = document.getElementById("lightbox") as HTMLDialogElement;
+		const big = lightbox.querySelector("img") as HTMLImageElement;
+		for (const img of content.querySelectorAll("img")) {
+			if (img.closest("a")) continue;
+			img.classList.add("zoomable");
+			img.addEventListener("click", () => {
+				big.src = img.currentSrc || img.src;
+				big.alt = img.alt;
+				lightbox.showModal();
+			});
+		}
+		lightbox.addEventListener("click", () => lightbox.close());
+	}
+
+	// Highlight the current section in the side table of contents
+	const links = new Map<string, HTMLAnchorElement>();
+	for (const a of document.querySelectorAll<HTMLAnchorElement>(
+		".toc-side a",
+	)) {
+		links.set(decodeURIComponent(a.hash.slice(1)), a);
+	}
+	if (links.size > 0 && "IntersectionObserver" in window) {
+		const targets = [...links.keys()]
+			.map((id) => document.getElementById(id))
+			.filter((el): el is HTMLElement => el !== null);
+		const update = () => {
+			let current = targets[0];
+			for (const el of targets) {
+				if (el.getBoundingClientRect().top <= 120) current = el;
+			}
+			for (const [id, a] of links) {
+				a.classList.toggle("active", id === current?.id);
+			}
+		};
+		new IntersectionObserver(update, {
+			rootMargin: "-100px 0px -60% 0px",
+			threshold: [0, 1],
+		}).observe(document.body);
+		for (const el of targets) {
+			new IntersectionObserver(update, {
+				rootMargin: "-100px 0px -60% 0px",
+			}).observe(el);
+		}
+		addEventListener("scroll", update, { passive: true });
+		update();
+	}
+
+	// Close the mobile table of contents after picking a section
+	const inline = document.querySelector<HTMLDetailsElement>(".toc-inline");
+	inline?.addEventListener("click", (e) => {
+		if ((e.target as HTMLElement).closest("a")) inline.open = false;
+	});
+</script>

@@ -16,7 +16,7 @@ const args = process.argv.slice(2)
 
 if (args.length === 0) {
   console.error(`Error: No filename argument provided
-Usage: npm run new-post -- <filename>`)
+Usage: pnpm new-post <post-name>/index.md`)
   process.exit(1) // Terminate the script and return error code 1
 }
 
@@ -43,7 +43,7 @@ if (!fs.existsSync(dirPath)) {
 }
 
 const content = `---
-title: ${args[0]}
+title: ${args[0].replace(/(\/index)?\.mdx?$/i, "")}
 published: ${getDate()}
 description: ''
 image: ''

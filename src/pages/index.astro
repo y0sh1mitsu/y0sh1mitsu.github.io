@@ -1,0 +1,30 @@
+---
+import PostCard from "../components/PostCard.astro";
+import Socials from "../components/Socials.astro";
+import { site } from "../config";
+import Base from "../layouts/Base.astro";
+import { getPosts } from "../lib/posts";
+
+const posts = await getPosts();
+---
+
+<Base>
+	<div class="wrap narrow">
+		<section class="hero">
+			<p class="eyebrow">{site.role}</p>
+			<h1>{site.author}</h1>
+			<p class="lede">{site.intro}</p>
+			<Socials labels />
+		</section>
+
+		<section aria-labelledby="posts-title">
+			<div class="section-title">
+				<span id="posts-title">Latest posts</span>
+				<a href="/archive/">Archive &rarr;</a>
+			</div>
+			<ul class="post-cards">
+				{posts.map((post, i) => <PostCard post={post} eager={i === 0} />)}
+			</ul>
+		</section>
+	</div>
+</Base>

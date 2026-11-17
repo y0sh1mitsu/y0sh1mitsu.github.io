@@ -1,0 +1,27 @@
+---
+import { socials } from "../config";
+import Icon from "./Icon.astro";
+
+interface Props {
+	labels?: boolean;
+}
+const { labels = false } = Astro.props;
+---
+
+<ul class="socials">
+	{
+		socials.map((s) => (
+			<li>
+				<a
+					href={s.href}
+					{...(s.href.startsWith("http")
+						? { target: "_blank", rel: "me noopener" }
+						: {})}
+				>
+					<Icon name={s.icon} size={16} />
+					<span class={labels ? undefined : "sr-only"}>{s.name}</span>
+				</a>
+			</li>
+		))
+	}
+</ul>

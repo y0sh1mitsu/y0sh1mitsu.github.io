@@ -1,45 +1,30 @@
 ---
-import ArchivePanel from "@components/ArchivePanel.astro";
-import I18nKey from "@i18n/i18nKey";
-import { i18n } from "@i18n/translation";
-import MainGridLayout from "@layouts/MainGridLayout.astro";
-import { getCategoryList } from "@utils/content-utils";
+import Archive from "../../../components/Archive.astro";
+import Base from "../../../layouts/Base.astro";
+import { getTaxonomy } from "../../../lib/posts";
 
 export async function getStaticPaths() {
-	const categories = await getCategoryList();
-
-	const standardPaths = categories.map((category) => {
-		return {
-			params: {
-				category: encodeURIComponent(category.name.trim()),
-			},
-			props: {
-				decodedCategory: category.name.trim(),
-			},
-		};
-	});
-
-	const nonEncodedCJKPaths = categories
-		.filter((category) =>
-			/[\u3000-\u9fff\uac00-\ud7af\u4e00-\u9faf]/.test(category.name),
-		)
-		.map((category) => ({
-			params: {
-				category: category.name.trim(), // Do not encode CJK characters
-			},
-			props: {
-				decodedCategory: category.name.trim(),
-			},
-		}));
-
-	return [...standardPaths, ...nonEncodedCJKPaths];
+	const { categories } = await getTaxonomy();
+	return [
+		...categories.map((c) => ({
+			params: { category: c.name },
+			props: { category: c.name },
+		})),
+		// Kept for posts without a category (and because the URL always existed).
+		{ params: { category: "uncategorized" }, props: { category: "" } },
+	];
 }
 
-const { decodedCategory } = Astro.props;
-const category =
-	decodedCategory || decodeURIComponent(Astro.params.category as string);
+const { category } = Astro.props;
+const label = category || "Uncategorized";
 ---
 
-<MainGridLayout title={i18n(I18nKey.archive)} description={i18n(I18nKey.archive)}>
-    <ArchivePanel categories={[category]}></ArchivePanel>
-</MainGridLayout>
+<Base title={label} description={`Posts in the ${label} category.`}>
+	<div class="wrap narrow">
+		<header class="page-head">
+			<p class="eyebrow">Category</p>
+			<h1>{label}</h1>
+		</header>
+		<Archive category={category} />
+	</div>
+</Base>

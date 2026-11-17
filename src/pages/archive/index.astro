@@ -1,11 +1,14 @@
 ---
-import ArchivePanel from "@components/ArchivePanel.astro";
-import I18nKey from "@i18n/i18nKey";
-import { i18n } from "@i18n/translation";
-import MainGridLayout from "@layouts/MainGridLayout.astro";
+import Archive from "../../components/Archive.astro";
+import Base from "../../layouts/Base.astro";
 ---
 
-<MainGridLayout title={i18n(I18nKey.archive)}>
-    <ArchivePanel></ArchivePanel>
-</MainGridLayout>
-
+<Base title="Archive" description="Every post, by year, category and tag.">
+	<div class="wrap narrow">
+		<header class="page-head">
+			<p class="eyebrow">Archive</p>
+			<h1>All posts</h1>
+		</header>
+		<Archive />
+	</div>
+</Base>

@@ -1,0 +1,115 @@
+---
+import {
+	categoryUrl,
+	getPosts,
+	getTaxonomy,
+	isoDate,
+	postUrl,
+	tagUrl,
+} from "../lib/posts";
+import Tags from "./Tags.astro";
+
+interface Props {
+	/** Only list posts in this category ("" = uncategorized). */
+	category?: string;
+	/** Only list posts with this tag. */
+	tag?: string;
+}
+const { category, tag } = Astro.props;
+
+const all = await getPosts();
+const { categories, tags } = await getTaxonomy();
+
+const posts = all.filter((p) => {
+	if (category !== undefined && p.data.category.trim() !== category)
+		return false;
+	if (tag !== undefined && !p.data.tags.some((t) => t.trim() === tag))
+		return false;
+	return true;
+});
+
+const years = new Map<number, typeof posts>();
+for (const post of posts) {
+	const y = post.data.published.getUTCFullYear();
+	years.set(y, [...(years.get(y) ?? []), post]);
+}
+const filtered = category !== undefined || tag !== undefined;
+---
+
+<nav class="filters" aria-label="Filter posts">
+	<div class="row">
+		<span class="label">Category</span>
+		<ul class="tags">
+			<li>
+				<a
+					class="tag plain"
+					href="/archive/"
+					aria-current={filtered ? undefined : "page"}
+				>
+					All <span class="count">{all.length}</span>
+				</a>
+			</li>
+			{
+				categories.map((c) => (
+					<li>
+						<a
+							class="tag plain"
+							href={categoryUrl(c.name)}
+							aria-current={category === c.name ? "page" : undefined}
+						>
+							{c.name} <span class="count">{c.count}</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+	{
+		tags.length > 0 && (
+			<div class="row">
+				<span class="label">Tag</span>
+				<ul class="tags">
+					{tags.map((t) => (
+						<li>
+							<a
+								class="tag"
+								href={tagUrl(t.name)}
+								aria-current={tag === t.name ? "page" : undefined}
+							>
+								{t.name} <span class="count">{t.count}</span>
+							</a>
+						</li>
+					))}
+				</ul>
+			</div>
+		)
+	}
+</nav>
+
+{posts.length === 0 && <p class="empty">No posts here yet.</p>}
+
+{
+	[...years.entries()].map(([year, items]) => (
+		<section class="year">
+			<h2>
+				{year}
+				<span>
+					{items.length} {items.length === 1 ? "post" : "posts"}
+				</span>
+			</h2>
+			<ul class="archive-list">
+				{items.map((post) => (
+					<li>
+						<time datetime={isoDate(post.data.published)}>
+							{isoDate(post.data.published).slice(5)}
+						</time>
+						<a class="title" href={postUrl(post)}>
+							{post.data.title}
+						</a>
+						<Tags tags={post.data.tags} />
+					</li>
+				))}
+			</ul>
+		</section>
+	))
+}
